@@ -1,16 +1,6 @@
-import logging
 from libs.exchange.GenericExchange import GenericExhange
-import requests
-import uuid
-import time
-from urllib.parse import urlencode
-import hmac
-import hashlib
-import proto.adapter_pb2 as service_entities
-from decimal import Decimal
 from libs.exchange.ws.binance import Binance as Binance_ws
-import traceback
-import definitions
+
 
 class Binance(GenericExhange):
     required_args = ["api_key", "api_sec", "ticker", "recv_window"]
@@ -39,7 +29,6 @@ class Binance(GenericExhange):
             self.__ws_url = "wss://stream.binance.com:9443/ws/{0}@depth@100ms".format(self.__ticker.lower())
         super().__init__(args)
 
-
     def get_websockets_handler(self, orderbook, lock):
-        return self.ws_controller(url=self.__ws_url, exchange="Binance", orderbook=orderbook,
+        return self.ws_controller(url=self.__ws_url, exchange_name="Binance", orderbook=orderbook,
                                   ticker=self.__ticker, lock=lock)

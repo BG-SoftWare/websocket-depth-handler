@@ -1,5 +1,5 @@
 class Balance(object):
-    def __init__(self, asset, free,locked):
+    def __init__(self, asset, free, locked):
         self.asset = asset
         self.free = free
         self.locked = locked

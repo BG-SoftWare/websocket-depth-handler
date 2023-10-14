@@ -1,4 +1,6 @@
 import proto.adapter_pb2 as service_entities
+
+
 class GenericExhange(object):
     required_args = []
     ws_controller = None
@@ -11,7 +13,7 @@ class GenericExhange(object):
         pass
 
     def get_websockets_handler(self, orderbook, lock):
-        if self.ws_controller == None and self.options["is_websockets"]:
+        if self.ws_controller is None and self.options["is_websockets"]:
             raise NotImplementedError("You must override ws_controller")
         return self.ws_controller
 
@@ -36,10 +38,11 @@ class GenericExhange(object):
         raise NotImplementedError("You must implement get_trade_info")
 
     def buy_fee_token_on_market_for_usdt(self, amount_usdt):
-        if self.options["is_buy_fee_token"] == True:
+        if self.options["is_buy_fee_token"]:
             raise NotImplementedError("You must implement buy_fee_token_on_market_for_usdt")
         else:
-            return service_entities.BuyFeeTokenRequest(token_amount = "",token_price = "", error = "This exchange dont have this feature")
+            return service_entities.BuyFeeTokenRequest(token_amount="", token_price="",
+                                                       error="This exchange dont have this feature")
 
     def place_market_order(self, route, token_amount):
         raise NotImplementedError("You must implement place_market_order")

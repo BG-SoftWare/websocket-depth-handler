@@ -1,11 +1,14 @@
-import grpc
-import proto.adapter_pb2_grpc as rpc
-import proto.adapter_pb2 as service_entities
-from libs.utils.order import Order
-from libs.utils.balance import Balance
-from libs.utils.trade import Trade
-from libs.utils.order_book import OrderBook
 from decimal import Decimal
+
+import grpc
+
+import proto.adapter_pb2 as service_entities
+import proto.adapter_pb2_grpc as rpc
+from libs.utils.balance import Balance
+from libs.utils.order import Order
+from libs.utils.order_book import OrderBook
+from libs.utils.trade import Trade
+
 
 class GRPCClient(object):
     def __init__(self, address):
@@ -17,21 +20,20 @@ class GRPCClient(object):
         symbol = ""
         bids = []
         asks = []
-        timestamp = -1
         if data.error == "":
             for i in data.bids:
                 bids.append([Decimal(i.price), Decimal(i.amount)])
             for i in data.asks:
                 asks.append([Decimal(i.price), Decimal(i.amount)])
-            timestamp = data.timestamp
-            return OrderBook(symbol,bids,asks,timestamp)
+            return OrderBook(symbol, bids, asks)
         raise ConnectionError(data.error)
 
-    def place_order(self, route, token_amount, token_price):
+    def place_order(self, route: str, token_amount: Decimal, token_price: Decimal):
         data = self.connection.place_order(
             service_entities.RequestCreateOrder(route=route, token_amount=token_amount, token_price=token_price))
         if data.error == "":
-            return Order(id=data.id, time=data.time, ticker=data.ticker, status=data.status, route=data.route)
+            return Order(order_id=data.order_id, time=data.time, ticker=data.ticker, status=data.status,
+                         route=data.route)
         else:
             raise ConnectionError(data.error)
 
@@ -57,7 +59,8 @@ class GRPCClient(object):
         service_entity_order = service_entities.Order(**dict(order))
         data = self.connection.get_trade_info(service_entities.RequestTradeInfo(order=service_entity_order))
         if data.error == "":
-            return Trade(data.id, data.time, data.ticker, data.status, data.route, Decimal(data.fee_amount), data.fee_currency,
+            return Trade(data.order_id, data.time, data.ticker, data.status, data.route, Decimal(data.fee_amount),
+                         data.fee_currency,
                          Decimal(data.order_price), Decimal(data.order_total), Decimal(data.token_amount))
         else:
             raise ConnectionError(data.error)
@@ -66,7 +69,7 @@ class GRPCClient(object):
         service_entity_order = service_entities.Order(**dict(order))
         data = self.connection.get_trade_info(service_entities.RequestTradeInfo(order=service_entity_order))
         if data.error == "":
-            return Order(data.id, data.time, data.ticker, data.status, data.route)
+            return Order(data.order_id, data.time, data.ticker, data.status, data.route)
         else:
             raise ConnectionError(data.error)
 

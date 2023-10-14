@@ -1,12 +1,13 @@
 from decimal import Decimal
 
+
 def my_default(obj):
     if isinstance(obj, Decimal):
         return float(obj)
 
-    # Далее можно описывать и другие свои типы, например MyFooFooBar
+    # Now, you can describe another types, for example MyFooBar
     # elif isinstance(obj, MyFooFooBar):
     #     return obj.get_super_foo_bar_value()
 
-    # Если не удалось определить тип:
+    # If type is unknown:
     return str(obj)

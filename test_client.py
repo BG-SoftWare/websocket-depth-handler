@@ -1,8 +1,10 @@
 import time
 
 import grpc
-import proto.adapter_pb2_grpc as rpc
+
 import proto.adapter_pb2 as service_entities
+import proto.adapter_pb2_grpc as rpc
+
 
 class Client:
     def __init__(self, address: str = 'localhost:11111'):
@@ -17,5 +19,5 @@ if __name__ == "__main__":
     c = Client()
     while 1:
         depth = c.get_depth()
-        print(int(time.time()*1000),depth.timestamp, int(time.time()*1000) - depth.timestamp)
+        print(int(time.time() * 1000), depth.timestamp, int(time.time() * 1000) - depth.timestamp)
         time.sleep(0.1)

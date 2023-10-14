@@ -1,11 +1,10 @@
-import websocket
-import requests
 import threading
 
-from json import loads
+import websocket
+
 
 class Client(threading.Thread):
-    def __init__(self, url, exchange):
+    def __init__(self, url, exchange_name):
         super().__init__()
         # create websocket connection
         self.ws = websocket.WebSocketApp(
@@ -15,9 +14,7 @@ class Client(threading.Thread):
             on_close=self.on_close,
             on_open=self.on_open
         )
-
-        # exchange name
-        self.exchange = exchange
+        self.exchange_name = exchange_name
 
     # keep connection alive
     def run(self):
@@ -39,8 +36,4 @@ class Client(threading.Thread):
 
     # run when websocket is initialised
     def on_open(self):
-        print(f'Connected to {self.exchange}\n')
-
-
-
-
+        print(f'Connected to {self.exchange_name}\n')

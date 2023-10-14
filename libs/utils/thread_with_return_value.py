@@ -1,14 +1,18 @@
 from threading import Thread
+
+
 class ThreadWithReturnValue(Thread):
-    def __init__(self, group=None, target=None, name=None,
-                 args=(), kwargs={}, Verbose=None):
+    def __init__(self, group=None, target=None, name=None, *args, **kwargs):
         Thread.__init__(self, group, target, name, args, kwargs)
         self._return = None
+        self._target = target
+        self._args = args
+        self._kwargs = kwargs
+
     def run(self):
-        #print(type(self._target))
         if self._target is not None:
-            self._return = self._target(*self._args,
-                                                **self._kwargs)
+            self._return = self._target(self._args, self._kwargs)
+
     def join(self, *args):
         Thread.join(self, *args)
         return self._return

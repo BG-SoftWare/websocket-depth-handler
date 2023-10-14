@@ -1,14 +1,15 @@
-from libs.exchange.ws.client import Client
-from json import loads
-from datetime import datetime
-from decimal import Decimal
 import time
+from decimal import Decimal
+from json import loads
+
 import requests
+
+from libs.exchange.ws.client import Client
 
 
 class Binance(Client):
-    def __init__(self, url, exchange, orderbook, ticker, lock):
-        super().__init__(url, exchange)
+    def __init__(self, url, exchange_name, orderbook, ticker, lock):
+        super().__init__(url, exchange_name)
         # local data management
         self.orderbook = orderbook
         self.lock = lock
@@ -25,16 +26,16 @@ class Binance(Client):
                 self.orderbook[key] = value
 
         # get lastUpdateId
-        lastUpdateId = self.orderbook['lastUpdateId']
+        last_update_id = self.orderbook['lastUpdateId']
 
         # drop any updates older than the snapshot
         if self.updates == 0:
-            if data['U'] <= lastUpdateId + 1 and data['u'] >= lastUpdateId + 1:
+            if data['U'] <= last_update_id + 1 <= data['u']:
                 self.orderbook['lastUpdateId'] = data['u']
                 self.process_updates(data)
 
         # check if update still in sync with orderbook
-        elif data['U'] == lastUpdateId + 1:
+        elif data['U'] == last_update_id + 1:
             self.orderbook['lastUpdateId'] = data['u']
             self.process_updates(data)
         else:
@@ -44,11 +45,9 @@ class Binance(Client):
     def process_updates(self, data):
         with self.lock:
             for update in data['b']:
-                # print(update)
                 fix = [Decimal(update[0]), Decimal(update[1])]
                 self.manage_orderbook('bids', fix)
             for update in data['a']:
-                # print(update)
                 fix = [Decimal(update[0]), Decimal(update[1])]
                 self.manage_orderbook('asks', fix)
             self.last_update['last_update'] = int(time.time() * 1000)
@@ -61,8 +60,7 @@ class Binance(Client):
         # loop through orderbook side
         for x in range(0, len(self.orderbook[side])):
             if price == self.orderbook[side][x][0]:
-                # when qty is 0 remove from orderbook, else
-                # update values
+                # when qty is 0 remove from orderbook, else update values
                 if qty == 0:
                     del self.orderbook[side][x]
                     break
@@ -76,8 +74,7 @@ class Binance(Client):
                 if qty != 0:
                     self.orderbook[side].insert(x, update)
                     break
-                else:
-                    break
+                break
 
     # retrieve orderbook snapshot
     def get_snapshot(self):
